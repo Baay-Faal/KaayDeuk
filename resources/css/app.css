@@ -1,11 +1,276 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* ── Variables Kaay Deuk ───────────────────────────────────────────── */
+@layer base {
+    :root {
+        --kd-black:      #000000;
+        --kd-white:      #ffffff;
+        --kd-gold:       #D4AF37;
+        --kd-gold-light: #F0D060;
+        --kd-gold-dark:  #A88B20;
+        --kd-gray-50:    #F9F9F9;
+        --kd-gray-100:   #F3F3F3;
+        --kd-gray-200:   #E5E5E5;
+        --kd-gray-400:   #9E9E9E;
+        --kd-gray-600:   #5A5A5A;
+        --kd-gray-800:   #1F1F1F;
+        --kd-success:    #22C55E;
+        --kd-warning:    #F59E0B;
+        --kd-danger:     #EF4444;
+        --kd-info:       #3B82F6;
+    }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    html { scroll-behavior: smooth; }
+
+    body {
+        font-family: 'Figtree', sans-serif;
+        background-color: var(--kd-gray-50);
+        color: var(--kd-gray-800);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--kd-gray-100); }
+    ::-webkit-scrollbar-thumb { background: var(--kd-gold); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--kd-gold-dark); }
+}
+
+@layer components {
+
+    /* ── Layout ── */
+    .kd-sidebar {
+        @apply fixed top-0 left-0 h-full w-64 z-40 flex flex-col;
+        background-color: var(--kd-black);
+        transition: transform 0.3s ease;
+    }
+
+    .kd-main {
+        @apply ml-64 min-h-screen;
+        background-color: var(--kd-gray-50);
+    }
+
+    .kd-topbar {
+        @apply sticky top-0 z-30 flex items-center justify-between px-6 py-4;
+        background-color: var(--kd-white);
+        border-bottom: 1px solid var(--kd-gray-200);
+        box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    }
+
+    /* ── Logo ── */
+    .kd-logo {
+        @apply flex items-center gap-3 px-6 py-5;
+        border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
+
+    .kd-logo-text {
+        @apply text-xl font-bold tracking-wider;
+        color: var(--kd-white);
+    }
+
+    .kd-logo-text span { color: var(--kd-gold); }
+
+    /* ── Navigation ── */
+    .kd-nav { @apply flex-1 px-4 py-6 space-y-1 overflow-y-auto; }
+
+    .kd-nav-section {
+        @apply text-xs font-semibold uppercase tracking-widest mb-3 mt-6 first:mt-0 px-3;
+        color: var(--kd-gray-400);
+    }
+
+    .kd-nav-link {
+        @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200;
+        color: var(--kd-gray-400);
+    }
+
+    .kd-nav-link:hover {
+        background-color: rgba(212,175,55,0.1);
+        color: var(--kd-gold);
+    }
+
+    .kd-nav-link.active {
+        background-color: var(--kd-gold);
+        color: var(--kd-black);
+        @apply font-semibold;
+    }
+
+    .kd-nav-link svg { @apply w-5 h-5 flex-shrink-0; }
+
+    /* ── KPI Cards ── */
+    .kd-kpi {
+        @apply rounded-2xl p-6 flex flex-col gap-3;
+        background-color: var(--kd-white);
+        border: 1px solid var(--kd-gray-200);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .kd-kpi:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .kd-kpi-icon {
+        @apply w-12 h-12 rounded-xl flex items-center justify-center;
+        background-color: rgba(212,175,55,0.1);
+    }
+
+    .kd-kpi-icon svg { @apply w-6 h-6; color: var(--kd-gold); }
+    .kd-kpi-value { @apply text-3xl font-bold; color: var(--kd-black); }
+    .kd-kpi-label { @apply text-sm; color: var(--kd-gray-400); }
+    .kd-kpi-trend { @apply text-xs font-medium flex items-center gap-1; }
+    .kd-kpi-trend.up   { color: var(--kd-success); }
+    .kd-kpi-trend.down { color: var(--kd-danger); }
+
+    /* ── Cards ── */
+    .kd-card {
+        @apply rounded-2xl p-6;
+        background-color: var(--kd-white);
+        border: 1px solid var(--kd-gray-200);
+    }
+
+    .kd-card-title {
+        @apply text-base font-semibold mb-4;
+        color: var(--kd-black);
+    }
+
+    /* ── Boutons ── */
+    .kd-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer;
+    }
+
+    .kd-btn-primary { background-color: var(--kd-gold); color: var(--kd-black); }
+    .kd-btn-primary:hover {
+        background-color: var(--kd-gold-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(212,175,55,0.4);
+    }
+
+    .kd-btn-dark { background-color: var(--kd-black); color: var(--kd-white); }
+    .kd-btn-dark:hover { background-color: var(--kd-gray-800); transform: translateY(-1px); }
+
+    .kd-btn-outline {
+        background-color: transparent;
+        color: var(--kd-black);
+        border: 1.5px solid var(--kd-gray-200);
+    }
+    .kd-btn-outline:hover { border-color: var(--kd-gold); color: var(--kd-gold); }
+
+    .kd-btn-danger { background-color: var(--kd-danger); color: var(--kd-white); }
+    .kd-btn-danger:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Badges ── */
+    .kd-badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+    .kd-badge-green  { background-color: #DCFCE7; color: #15803D; }
+    .kd-badge-orange { background-color: #FEF3C7; color: #92400E; }
+    .kd-badge-blue   { background-color: #DBEAFE; color: #1D4ED8; }
+    .kd-badge-purple { background-color: #F3E8FF; color: #7E22CE; }
+    .kd-badge-gray   { background-color: #F3F4F6; color: #4B5563; }
+    .kd-badge-gold   { background-color: rgba(212,175,55,0.15); color: var(--kd-gold-dark); }
+    .kd-badge-red    { background-color: #FEE2E2; color: #B91C1C; }
+
+    /* ── Tables ── */
+    .kd-table { @apply w-full text-sm; }
+    .kd-table thead tr { border-bottom: 2px solid var(--kd-gray-200); }
+    .kd-table thead th {
+        @apply py-3 px-4 text-left text-xs font-semibold uppercase tracking-wider;
+        color: var(--kd-gray-400);
+    }
+    .kd-table tbody tr {
+        border-bottom: 1px solid var(--kd-gray-100);
+        transition: background-color 0.15s ease;
+    }
+    .kd-table tbody tr:hover { background-color: var(--kd-gray-50); }
+    .kd-table tbody td { @apply py-3.5 px-4; color: var(--kd-gray-800); }
+
+    /* ── Inputs ── */
+    .kd-input {
+        @apply w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-all duration-200;
+        background-color: var(--kd-gray-50);
+        border: 1.5px solid var(--kd-gray-200);
+        color: var(--kd-black);
+    }
+    .kd-input:focus {
+        border-color: var(--kd-gold);
+        background-color: var(--kd-white);
+        box-shadow: 0 0 0 3px rgba(212,175,55,0.15);
+    }
+    .kd-input::placeholder { color: var(--kd-gray-400); }
+    .kd-label { @apply block text-xs font-semibold uppercase tracking-wider mb-1.5; color: var(--kd-gray-600); }
+
+    /* ── Notifications ── */
+    .kd-notif-badge {
+        @apply absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold;
+        background-color: var(--kd-gold);
+        color: var(--kd-black);
+    }
+
+    .kd-notif-item {
+        @apply flex items-start gap-3 p-4 transition-colors duration-150 cursor-pointer;
+        border-bottom: 1px solid var(--kd-gray-100);
+    }
+    .kd-notif-item:hover { background-color: var(--kd-gray-50); }
+    .kd-notif-item.unread { background-color: rgba(212,175,55,0.05); }
+
+    /* ── Page header ── */
+    .kd-page-header { @apply flex items-center justify-between mb-8; }
+    .kd-page-title  { @apply text-2xl font-bold; color: var(--kd-black); }
+    .kd-page-subtitle { @apply text-sm mt-1; color: var(--kd-gray-400); }
+
+    /* ── Avatar ── */
+    .kd-avatar {
+        @apply w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0;
+        background-color: var(--kd-gold);
+        color: var(--kd-black);
+    }
+
+    /* ── Empty state ── */
+    .kd-empty { @apply flex flex-col items-center justify-center py-16 text-center; }
+    .kd-empty svg { @apply w-16 h-16 mb-4; color: var(--kd-gray-200); }
+    .kd-empty-title { @apply text-base font-semibold mb-2; color: var(--kd-gray-600); }
+    .kd-empty-text  { @apply text-sm; color: var(--kd-gray-400); }
+
+    /* ── Pagination ── */
+    .kd-pagination { @apply flex items-center gap-2 mt-6; }
+    .kd-page-btn {
+        @apply w-9 h-9 rounded-lg flex items-center justify-center text-sm font-medium transition-all duration-150;
+        border: 1.5px solid var(--kd-gray-200);
+        color: var(--kd-gray-600);
+    }
+    .kd-page-btn:hover { border-color: var(--kd-gold); color: var(--kd-gold); }
+    .kd-page-btn.active {
+        background-color: var(--kd-gold);
+        border-color: var(--kd-gold);
+        color: var(--kd-black);
+        @apply font-bold;
+    }
+
+    /* ── Gold line ── */
+    .kd-gold-line { @apply h-0.5 w-12 rounded-full; background-color: var(--kd-gold); }
+
+    /* ── Stat mini ── */
+    .kd-stat-mini { @apply flex items-center justify-between py-3; border-bottom: 1px solid var(--kd-gray-100); }
+    .kd-stat-mini:last-child { border-bottom: none; }
+
+    /* ── Animations ── */
+    .kd-fade-in { animation: kdFadeIn 0.4s ease forwards; }
+    @keyframes kdFadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .kd-slide-in { animation: kdSlideIn 0.3s ease forwards; }
+    @keyframes kdSlideIn {
+        from { opacity: 0; transform: translateX(-12px); }
+        to   { opacity: 1; transform: translateX(0); }
+    }
+}
+
+@layer utilities {
+    .text-gold    { color: var(--kd-gold); }
+    .bg-gold      { background-color: var(--kd-gold); }
+    .border-gold  { border-color: var(--kd-gold); }
+    .text-kd-gray { color: var(--kd-gray-400); }
+    .bg-kd-dark   { background-color: var(--kd-black); }
+    .shadow-gold  { box-shadow: 0 4px 20px rgba(212,175,55,0.25); }
 }

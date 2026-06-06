@@ -15,7 +15,8 @@ class ClientController extends Controller
 {
     public function __construct()
     {
-        // $this->authorizeResource(Client::class, 'client');
+        // ✅ Policy activée — applique ClientPolicy sur toutes les méthodes
+        $this->authorizeResource(Client::class, 'client');
     }
 
     /**
@@ -25,16 +26,22 @@ class ClientController extends Controller
     {
         $query = Client::with(['agent']);
 
+        // Filtrer par agent connecté (si agent et pas admin)
+        // ✅ Un agent ne voit QUE ses propres clients
+        $user = $request->user();
+        if ($user && $user->isAgent() && !$request->has('all')) {
+            $query->where('agent_id', $user->id);
+        }
+
         // Filtres
         if ($request->filled('is_active')) {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
-        if ($request->filled('agent_id')) {
+        if ($request->filled('agent_id') && $user->isAdmin()) {
             $query->where('agent_id', $request->agent_id);
         }
 
-        // Recherche par nom/prénom/email
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -44,7 +51,6 @@ class ClientController extends Controller
             });
         }
 
-        // Recherche par budget
         if ($request->filled('budget_min')) {
             $query->where('budget_max', '>=', $request->budget_min);
         }
@@ -53,18 +59,11 @@ class ClientController extends Controller
             $query->where('budget_min', '<=', $request->budget_max);
         }
 
-        // Filtrer par agent connecté (si agent et pas admin)
-        $user = $request->user();
-        if ($user && $user->isAgent() && !$request->has('all')) {
-            $query->where('agent_id', $user->id);
-        }
-
         // Tri
-        $sortBy = $request->input('sort_by', 'created_at');
+        $sortBy    = $request->input('sort_by', 'created_at');
         $sortOrder = $request->input('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        // Pagination
         $perPage = $request->input('per_page', 15);
         $clients = $query->paginate($perPage);
 
@@ -77,8 +76,8 @@ class ClientController extends Controller
     public function store(StoreClientRequest $request): JsonResponse
     {
         $data = $request->validated();
-        
-        // Ajouter l'agent connecté
+
+        // L'agent connecté est automatiquement assigné
         $data['agent_id'] = $request->user()->id;
 
         $client = Client::create($data);
@@ -86,30 +85,31 @@ class ClientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Client créé avec succès.',
-            'data' => new ClientResource($client->load('agent')),
+            'data'    => new ClientResource($client->load('agent')),
         ], 201);
     }
 
     /**
      * Afficher les détails d'un client
+     * ✅ ClientPolicy::view() vérifie que l'agent est bien le référent
      */
     public function show(Request $request, Client $client): JsonResponse
     {
         $client->load(['agent']);
 
-        // Charger les favoris si demandé
         if ($request->has('with_favoris')) {
             $client->load('biensFavoris');
         }
 
         return response()->json([
             'success' => true,
-            'data' => new ClientResource($client),
+            'data'    => new ClientResource($client),
         ], 200);
     }
 
     /**
      * Mettre à jour un client
+     * ✅ ClientPolicy::update() vérifie que l'agent est bien le référent
      */
     public function update(UpdateClientRequest $request, Client $client): JsonResponse
     {
@@ -118,12 +118,13 @@ class ClientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Client mis à jour avec succès.',
-            'data' => new ClientResource($client->fresh(['agent'])),
+            'data'    => new ClientResource($client->fresh(['agent'])),
         ], 200);
     }
 
     /**
-     * Supprimer un client (soft delete)
+     * Supprimer un client
+     * ✅ ClientPolicy::delete() vérifie que l'agent est bien le référent
      */
     public function destroy(Client $client): JsonResponse
     {
